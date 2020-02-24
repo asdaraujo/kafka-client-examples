@@ -45,6 +45,9 @@ public class Producer {
         burstsPerMinute = Double.parseDouble(args[5]);
         minBurstRecords = Integer.parseInt(args[6]);
         maxBurstRecords = Integer.parseInt(args[7]);
+        if (args.length > 8) {
+            propsFile = args[8];
+        }
         producer = getProducer();
         Random random = new Random();
         double threshold = burstsPerMinute * Double.parseDouble(produceIntervalMs) / 60000;
