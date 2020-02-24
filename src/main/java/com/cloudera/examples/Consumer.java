@@ -1,5 +1,8 @@
 package com.cloudera.examples;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.IOException;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +25,16 @@ public class Consumer {
     private static String topic = null;
     private static String pollIntervalMs = null;
     private static String maxPollRecords = null;
+    private static String propsFile = null;
 
     public static void main(String[] args) {
         bootstrapServer = args[0];
         topic = args[1];
         pollIntervalMs = args[2];
         maxPollRecords = args[3];
+        if (args.length > 4) {
+            propsFile = args[4];
+        }
         KafkaConsumer<Integer, String> consumer = getConsumer("consumer-example");
         KafkaConsumer<Integer, String> adminConsumer = getConsumer("consumer-example-admin");
         ArrayList<String> topics = new ArrayList<String>();
@@ -87,6 +94,16 @@ public class Consumer {
         properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         properties.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, Math.max(30000, 2 * Integer.parseInt(pollIntervalMs)));
         properties.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringConsumerInterceptor");
+
+        if (propsFile != null) {
+            try (InputStream input = new FileInputStream(propsFile)) {
+                properties.load(input);
+                System.out.println(String.format("%s", properties));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
         return new KafkaConsumer<Integer, String>(properties);
     }
 }

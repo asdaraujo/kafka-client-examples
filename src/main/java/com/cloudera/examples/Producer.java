@@ -1,5 +1,8 @@
 package com.cloudera.examples;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
@@ -20,6 +23,7 @@ public class Producer {
     private static double burstsPerMinute = 0;
     private static int minBurstRecords = 0;
     private static int maxBurstRecords = 0;
+    private static String propsFile = null;
 
     private static KafkaProducer<Integer, String> producer = null;
     private static int msgId = 0;
@@ -75,6 +79,16 @@ public class Producer {
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.CLIENT_ID_CONFIG, "producer-example");
         properties.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
+
+        if (propsFile != null) {
+            try (InputStream input = new FileInputStream(propsFile)) {
+                properties.load(input);
+                System.out.println(String.format("%s", properties));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
         return new KafkaProducer<Integer, String>(properties);
     }
 }
